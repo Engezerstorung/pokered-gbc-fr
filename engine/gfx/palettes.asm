@@ -1,3 +1,6 @@
+; HAX: This is the super gameboy palette command handler.
+; I hijaxed a jump table so I can reimplement all SGB colorization functions.
+; Value of b is the "command". Jumps to function "XX" of SetPalFunctions where X is the command.
 _RunPaletteCommand:
 	call GetPredefRegisters
 	ld a, b
@@ -15,231 +18,26 @@ _RunPaletteCommand:
 	ld a, [hli]
 	ld h, [hl]
 	ld l, a
-	ld de, SendSGBPackets
+
+	ld de, SetPalRet
 	push de
-	jp hl
+ 	jp hl
 
-SetPal_BattleBlack:
-	ld hl, PalPacket_Black
-	ld de, BlkPacket_Battle
+SetPalRet:
 	ret
 
-; uses PalPacket_Empty to build a packet based on mon IDs and health color
-SetPal_Battle:
-	ld hl, PalPacket_Empty
-	ld de, wPalPacket
-	ld bc, $10
-	call CopyData
-	ld a, [wPlayerBattleStatus3]
-	ld hl, wBattleMonSpecies
-	call DeterminePaletteID
-	ld b, a
-	ld a, [wEnemyBattleStatus3]
-	ld hl, wEnemyMonSpecies2
-	call DeterminePaletteID
-	ld c, a
-	ld hl, wPalPacket + 1
-	ld a, [wPlayerHPBarColor]
-	add PAL_GREENBAR
-	ld [hli], a
-	inc hl
-	ld a, [wEnemyHPBarColor]
-	add PAL_GREENBAR
-	ld [hli], a
-	inc hl
-	ld a, b
-	ld [hli], a
-	inc hl
-	ld a, c
-	ld [hl], a
-	ld hl, wPalPacket
-	ld de, BlkPacket_Battle
-	ld a, SET_PAL_BATTLE
-	ld [wDefaultPaletteCommand], a
-	ret
 
-SetPal_TownMap:
-	ld hl, PalPacket_TownMap
-	ld de, BlkPacket_WholeScreen
-	ret
+; HAX: Custom functions squeezed in here
+; Before, SetPal functions were here
 
-; uses PalPacket_Empty to build a packet based the mon ID
-SetPal_StatusScreen:
-	ld hl, PalPacket_Empty
-	ld de, wPalPacket
-	ld bc, $10
-	call CopyData
-	ld a, [wcf91]
-	cp NUM_POKEMON_INDEXES + 1
-	jr c, .pokemon
-	ld a, $1 ; not pokemon
-.pokemon
-	call DeterminePaletteIDOutOfBattle
-	push af
-	ld hl, wPalPacket + 1
-	ld a, [wStatusScreenHPBarColor]
-	add PAL_GREENBAR
-	ld [hli], a
-	inc hl
-	pop af
-	ld [hl], a
-	ld hl, wPalPacket
-	ld de, BlkPacket_StatusScreen
-	ret
-
-SetPal_PartyMenu:
-	ld hl, PalPacket_PartyMenu
-	ld de, wPartyMenuBlkPacket
-	ret
-
-SetPal_Pokedex:
-	ld hl, PalPacket_Pokedex
-	ld de, wPalPacket
-	ld bc, $10
-	call CopyData
-	ld a, [wcf91]
-	call DeterminePaletteIDOutOfBattle
-	ld hl, wPalPacket + 3
-	ld [hl], a
-	ld hl, wPalPacket
-	ld de, BlkPacket_Pokedex
-	ret
-
-SetPal_Slots:
-	ld hl, PalPacket_Slots
-	ld de, BlkPacket_Slots
-	ret
-
-SetPal_TitleScreen:
-	ld hl, PalPacket_Titlescreen
-	ld de, BlkPacket_Titlescreen
-	ret
-
-; used mostly for menus and the Oak intro
-SetPal_Generic:
-	ld hl, PalPacket_Generic
-	ld de, BlkPacket_WholeScreen
-	ret
-
-SetPal_NidorinoIntro:
-	ld hl, PalPacket_NidorinoIntro
-	ld de, BlkPacket_NidorinoIntro
-	ret
-
-SetPal_GameFreakIntro:
-	ld hl, PalPacket_GameFreakIntro
-	ld de, BlkPacket_GameFreakIntro
-	ld a, SET_PAL_GENERIC
-	ld [wDefaultPaletteCommand], a
-	ret
-
-; uses PalPacket_Empty to build a packet based on the current map
-SetPal_Overworld:
-	ld hl, PalPacket_Empty
-	ld de, wPalPacket
-	ld bc, $10
-	call CopyData
-	ld a, [wCurMapTileset]
-	cp CEMETERY
-	jr z, .PokemonTowerOrAgatha
-	cp CAVERN
-	jr z, .caveOrBruno
-	ld a, [wCurMap]
-	cp FIRST_INDOOR_MAP
-	jr c, .townOrRoute
-	cp CERULEAN_CAVE_2F
-	jr c, .normalDungeonOrBuilding
-	cp CERULEAN_CAVE_1F + 1
-	jr c, .caveOrBruno
-	cp LORELEIS_ROOM
-	jr z, .Lorelei
-	cp BRUNOS_ROOM
-	jr z, .caveOrBruno
-.normalDungeonOrBuilding
-	ld a, [wLastMap] ; town or route that current dungeon or building is located
-.townOrRoute
-	cp NUM_CITY_MAPS
-	jr c, .town
-	ld a, PAL_ROUTE - 1
-.town
-	inc a ; a town's palette ID is its map ID + 1
-	ld hl, wPalPacket + 1
-	ld [hld], a
-	ld de, BlkPacket_WholeScreen
-	ld a, SET_PAL_OVERWORLD
-	ld [wDefaultPaletteCommand], a
-	ret
-.PokemonTowerOrAgatha
-	ld a, PAL_GREYMON - 1
-	jr .town
-.caveOrBruno
-	ld a, PAL_CAVE - 1
-	jr .town
-.Lorelei
-	xor a
-	jr .town
-
-; used when a Pokemon is the only thing on the screen
-; such as evolution, trading and the Hall of Fame
-SetPal_PokemonWholeScreen:
-	push bc
-	ld hl, PalPacket_Empty
-	ld de, wPalPacket
-	ld bc, $10
-	call CopyData
-	pop bc
-	ld a, c
-	and a
-	ld a, PAL_BLACK
-	jr nz, .next
-	ld a, [wWholeScreenPaletteMonSpecies]
-	call DeterminePaletteIDOutOfBattle
-.next
-	ld [wPalPacket + 1], a
-	ld hl, wPalPacket
-	ld de, BlkPacket_WholeScreen
-	ret
-
-SetPal_TrainerCard:
-	ld hl, BlkPacket_TrainerCard
-	ld de, wTrainerCardBlkPacket
-	ld bc, $40
-	call CopyData
-	ld de, BadgeBlkDataLengths
-	ld hl, wTrainerCardBlkPacket + 2
-	ld a, [wObtainedBadges]
-	ld c, NUM_BADGES
-.badgeLoop
-	srl a
-	push af
-	jr c, .haveBadge
-; The player doens't have the badge, so zero the badge's blk data.
-	push bc
-	ld a, [de]
-	ld c, a
-	xor a
-.zeroBadgeDataLoop
-	ld [hli], a
-	dec c
-	jr nz, .zeroBadgeDataLoop
-	pop bc
-	jr .nextBadge
-.haveBadge
-; The player does have the badge, so skip past the badge's blk data.
-	ld a, [de]
-.skipBadgeDataLoop
-	inc hl
+WaitForVBlank:
+	ldh a, [rSTAT]
+	and a, 3
 	dec a
-	jr nz, .skipBadgeDataLoop
-.nextBadge
-	pop af
-	inc de
-	dec c
-	jr nz, .badgeLoop
-	ld hl, PalPacket_TrainerCard
-	ld de, wTrainerCardBlkPacket
-	ret
+	jr nz, WaitForVBlank
+ 	ret
 
+; Palette commands are moved to the end of the bank (in color/color.asm)
 SetPalFunctions:
 ; entries correspond to SET_PAL_* constants
 	dw SetPal_BattleBlack
@@ -256,39 +54,84 @@ SetPalFunctions:
 	dw SetPal_PokemonWholeScreen
 	dw SetPal_GameFreakIntro
 	dw SetPal_TrainerCard
+	; Past here are codes which didn't previously exist.
+	dw SetPal_OakIntro	   ; Set prof oak's color
+	dw SetPal_NameEntry	   ; Name entry (partially replaces 08)
+	dw SetPal_BattleAfterBlack ; Like SetPal_Battle but specifically for clearing the black palettes
 
-; The length of the blk data of each badge on the Trainer Card.
-; The Rainbow Badge has 3 entries because of its many colors.
-BadgeBlkDataLengths:
-	db 6     ; Boulder Badge
-	db 6     ; Cascade Badge
-	db 6     ; Thunder Badge
-	db 6 * 3 ; Rainbow Badge
-	db 6     ; Soul Badge
-	db 6     ; Marsh Badge
-	db 6     ; Volcano Badge
-	db 6     ; Earth Badge
-
+; HAXed to give trainers palettes independantly
+; Also skips the "transform" check, caller does that instead
 DeterminePaletteID:
-	bit TRANSFORMED, a ; a is battle status 3
-	ld a, PAL_GREYMON  ; if the mon has used Transform, use Ditto's palette
-	ret nz
-	ld a, [hl]
-DeterminePaletteIDOutOfBattle:
 	ld [wd11e], a
-	and a ; is the mon index 0?
-	jr z, .skipDexNumConversion
+	and a
+
 	push bc
-	predef IndexToPokedex
+	predef IndexToPokedex ; turn Pokemon ID number into Pokedex number
 	pop bc
+
 	ld a, [wd11e]
+	ld hl, MonsterPalettes
+	and a
+	jr nz, .skipDexNumConversion ; Check if trainer?
+
+IF GEN_2_GRAPHICS ; Trainers are given individualized palettes
+	; In link battle, don't rely in wTrainerClass (for some reason it's set to
+	; OPP_GARY, so ignore it)
+	ld a, [wLinkState]
+	cp LINK_STATE_BATTLING
+	ld a, PAL_HERO
+	ret z
+
+	ld a, [wTrainerClass] ; Get trainer ID
+	ld hl, TrainerPalettes
+ELSE
+	; Trainers are given a single palette (PAL_MEWMON)
+	; However, check specifically for the player's sprite in linked battle
+	ld e, a
+	ld a, [wLinkState]
+	cp LINK_STATE_BATTLING
+	ld a, PAL_REDMON
+	ret z
+
+	ld a, e
+ENDC
+
 .skipDexNumConversion
 	ld e, a
-	ld d, 0
-	ld hl, MonsterPalettes ; not just for Pokemon, Trainers use it too
+	ld d, $00
 	add hl, de
 	ld a, [hl]
 	ret
+	
+
+DetermineBackSpritePaletteID:
+	ld [wd11e], a
+	and a
+
+	push bc
+	predef IndexToPokedex ; turn Pokemon ID number into Pokedex number
+	pop bc
+
+	ld a, [wd11e]
+	ld hl, MonsterPalettes
+	and a
+	jr nz, .getPaletteID ; Check if trainer?
+
+IF GEN_2_GRAPHICS
+	ld a, PAL_HERO
+ELSE
+	ld a, PAL_REDMON
+ENDC
+	ret
+.getPaletteID
+	ld e, a
+	ld d, $00
+	add hl, de
+	ld a, [hl]
+	ret
+	
+
+SECTION "InitPartyMenuBlkPacket", ROMX
 
 InitPartyMenuBlkPacket:
 	ld hl, BlkPacket_PartyMenu
@@ -389,39 +232,26 @@ SendSGBPacket:
 ; else send 16 more bytes
 	jr .loop2
 
+; This function is HAXed to always set the SGB Flag.
+; This helps with palette flashing effects in battle.
+; It also lets me hijack RunPaletteCommand.
 LoadSGB:
 	xor a
 	ld [wOnSGB], a
 	call CheckSGB
-	ret nc
-	ld a, 1
+	;ret nc
+	nop
+	ld a, $1
 	ld [wOnSGB], a
 	ld a, [wGBC]
 	and a
-	jr z, .notGBC
+	;jr z, .asm_7203f
+	nop
+	nop
 	ret
-.notGBC
-	di
-	call PrepareSuperNintendoVRAMTransfer
-	ei
-	ld a, 1
-	ld [wCopyingSGBTileData], a
-	ld de, ChrTrnPacket
-	ld hl, SGBBorderGraphics
-	call CopyGfxToSuperNintendoVRAM
-	xor a
-	ld [wCopyingSGBTileData], a
-	ld de, PctTrnPacket
-	ld hl, BorderPalettes
-	call CopyGfxToSuperNintendoVRAM
-	xor a
-	ld [wCopyingSGBTileData], a
-	ld de, PalTrnPacket
-	ld hl, SuperPalettes
-	call CopyGfxToSuperNintendoVRAM
-	call ClearVram
-	ld hl, MaskEnCancelPacket
-	jp SendSGBPacket
+	; Deleted the end of this function which loads the SGB border and stuff
+
+SECTION "PrepareSuperNintendoVRAMTransfer", ROMX
 
 PrepareSuperNintendoVRAMTransfer:
 	ld hl, .packetPointers
@@ -636,6 +466,7 @@ INCLUDE "data/sgb/sgb_packets.asm"
 
 INCLUDE "data/pokemon/palettes.asm"
 
-INCLUDE "data/sgb/sgb_palettes.asm"
+; SGB border not needed in color hack
+;INCLUDE "data/sgb/sgb_palettes.asm"
 
-INCLUDE "data/sgb/sgb_border.asm"
+;INCLUDE "data/sgb/sgb_border.asm"

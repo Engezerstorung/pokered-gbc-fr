@@ -39,6 +39,7 @@ ClearBgMap::
 ; row or column is more efficient than redrawing the entire screen.
 ; However, this function is also called repeatedly to redraw the whole screen
 ; when necessary. It is also used in trade animation and elevator code.
+; This function has beex HAXed to call other functions, which will also refresh palettes.
 RedrawRowOrColumn::
 	ldh a, [hRedrawRowOrColumnMode]
 	and a
@@ -48,68 +49,10 @@ RedrawRowOrColumn::
 	ldh [hRedrawRowOrColumnMode], a
 	dec b
 	jr nz, .redrawRow
-.redrawColumn
-	ld hl, wRedrawRowOrColumnSrcTiles
-	ldh a, [hRedrawRowOrColumnDest]
-	ld e, a
-	ldh a, [hRedrawRowOrColumnDest + 1]
-	ld d, a
-	ld c, SCREEN_HEIGHT
-.loop1
-	ld a, [hli]
-	ld [de], a
-	inc de
-	ld a, [hli]
-	ld [de], a
-	ld a, BG_MAP_WIDTH - 1
-	add e
-	ld e, a
-	jr nc, .noCarry
-	inc d
-.noCarry
-; the following 4 lines wrap us from bottom to top if necessary
-	ld a, d
-	and $3
-	or $98
-	ld d, a
-	dec c
-	jr nz, .loop1
-	xor a
-	ldh [hRedrawRowOrColumnMode], a
+	CALL_INDIRECT DrawMapColumn
 	ret
 .redrawRow
-	ld hl, wRedrawRowOrColumnSrcTiles
-	ldh a, [hRedrawRowOrColumnDest]
-	ld e, a
-	ldh a, [hRedrawRowOrColumnDest + 1]
-	ld d, a
-	push de
-	call .DrawHalf ; draw upper half
-	pop de
-	ld a, BG_MAP_WIDTH ; width of VRAM background map
-	add e
-	ld e, a
-	; fall through and draw lower half
-
-.DrawHalf
-	ld c, SCREEN_WIDTH / 2
-.loop2
-	ld a, [hli]
-	ld [de], a
-	inc de
-	ld a, [hli]
-	ld [de], a
-	ld a, e
-	inc a
-; the following 6 lines wrap us from the right edge to the left edge if necessary
-	and $1f
-	ld b, a
-	ld a, e
-	and $e0
-	or b
-	ld e, a
-	dec c
-	jr nz, .loop2
+	CALL_INDIRECT DrawMapRow
 	ret
 
 ; This function automatically transfers tile number data from the tile map at
@@ -119,83 +62,37 @@ RedrawRowOrColumn::
 ; on when talking to sprites, battling, using menus, etc. This is because
 ; the above function, RedrawRowOrColumn, is used when walking to
 ; improve efficiency.
-AutoBgMapTransfer::
-	ldh a, [hAutoBGTransferEnabled]
-	and a
-	ret z
-	ld hl, sp + 0
-	ld a, h
-	ldh [hSPTemp], a
-	ld a, l
-	ldh [hSPTemp + 1], a ; save stack pointer
-	ldh a, [hAutoBGTransferPortion]
-	and a
-	jr z, .transferTopThird
-	dec a
-	jr z, .transferMiddleThird
-.transferBottomThird
-	hlcoord 0, 12
-	ld sp, hl
-	ldh a, [hAutoBGTransferDest + 1]
-	ld h, a
-	ldh a, [hAutoBGTransferDest]
-	ld l, a
-	ld de, (12 * 32)
-	add hl, de
-	xor a ; TRANSFERTOP
-	jr .doTransfer
-.transferTopThird
-	hlcoord 0, 0
-	ld sp, hl
-	ldh a, [hAutoBGTransferDest + 1]
-	ld h, a
-	ldh a, [hAutoBGTransferDest]
-	ld l, a
-	ld a, TRANSFERMIDDLE
-	jr .doTransfer
-.transferMiddleThird
-	hlcoord 0, 6
-	ld sp, hl
-	ldh a, [hAutoBGTransferDest + 1]
-	ld h, a
-	ldh a, [hAutoBGTransferDest]
-	ld l, a
-	ld de, (6 * 32)
-	add hl, de
-	ld a, TRANSFERBOTTOM
-.doTransfer
-	ldh [hAutoBGTransferPortion], a ; store next portion
-	ld b, 6
-
-TransferBgRows::
-; unrolled loop and using pop for speed
-REPT SCREEN_WIDTH / 2 - 1
-	pop de
-	ld [hl], e
-	inc l
-	ld [hl], d
-	inc l
-ENDR
-	pop de
-	ld [hl], e
-	inc l
-	ld [hl], d
-
-	ld a, BG_MAP_WIDTH - (SCREEN_WIDTH - 1)
-	add l
-	ld l, a
-	jr nc, .ok
-	inc h
-.ok
-	dec b
-	jr nz, TransferBgRows
-
-	ldh a, [hSPTemp]
-	ld h, a
-	ldh a, [hSPTemp + 1]
-	ld l, a
-	ld sp, hl
+AutoBgMapTransfer:: ; HAXED function
+	ld a, BANK(RefreshWindow)
+	ld [MBC1RomBank], a
+	call RefreshWindow
+	ldh a, [hLoadedROMBank]
+	ld [MBC1RomBank], a
 	ret
+
+; HAX: Squeeze this little function in here
+_GbcPrepareVBlank:
+	push af
+	push bc
+	push de
+	push hl
+	CALL_INDIRECT GbcPrepareVBlank
+	pop hl
+	pop de
+	pop bc
+	pop af
+	reti
+
+; Prevent data shifting
+SECTION "JpPoint", ROM0
+
+; HAX: This function is reimplemented elsewhere.
+; Note: this doesn't update "hLoadedROMBank", but no interrupts will occur at this time,
+; so it's fine.
+TransferBgRows::
+	ld a, BANK(WindowTransferBgRowsAndColors)
+	ld [MBC1RomBank], a
+	jp WindowTransferBgRowsAndColors
 
 ; Copies [hVBlankCopyBGNumRows] rows from hVBlankCopyBGSource to hVBlankCopyBGDest.
 ; If hVBlankCopyBGSource is XX00, the transfer is disabled.

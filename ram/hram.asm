@@ -399,4 +399,12 @@ hJoyInput:: db
 
 hDisableJoypadPolling:: db
 
-	ds 5
+; This byte is used by the color hack, in the "DelayFrameHook" function. It stores the
+; bank that the interrupt wrapper should switch to if an interrupt occurs in the middle of
+; "DelayFrameHook". The bank # is incremented by one, so if this is 0, it's ignored.
+hDelayFrameHookBank:: db
+
+; Used for convenience in color hack (in the _ColorOverworldSprite function)
+hColorHackTmp:: db
+
+	ds 3

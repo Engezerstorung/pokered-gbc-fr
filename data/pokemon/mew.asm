@@ -8,8 +8,8 @@
 ; slot Mew in there. What we did would be unthinkable nowadays!"
 ; http://iwataasks.nintendo.com/interviews/#/ds/pokemon/0/0
 
-MewPicFront:: INCBIN "gfx/pokemon/front/mew.pic"
-MewPicBack::  INCBIN "gfx/pokemon/back/mewb.pic"
+; Mew sprites removed from here
+SECTION "Mew Base Stats", ROMX
 
 MewBaseStats::
 INCLUDE "data/pokemon/base_stats/mew.asm"

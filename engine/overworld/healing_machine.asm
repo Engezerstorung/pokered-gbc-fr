@@ -1,3 +1,5 @@
+; This function does the flashing pokeballs when healing pokemon
+; HAXed to look better in color
 AnimateHealingMachine:
 	ld de, PokeCenterFlashingMonitorAndHealBall
 	ld hl, vChars0 tile $7c
@@ -11,7 +13,9 @@ AnimateHealingMachine:
 	ldh a, [rOBP1]
 	push af
 	ld a, $e0
-	ldh [rOBP1], a
+	;ldh [rOBP1], a
+	nop
+	nop
 	ld hl, wShadowOAMSprite33
 	ld de, PokeCenterOAMData
 	call CopyHealingMachineOAM
@@ -47,7 +51,7 @@ AnimateHealingMachine:
 	ld a, MUSIC_PKMN_HEALED
 	ld [wNewSoundID], a
 	call PlaySound
-	ld d, $28
+	ld d, %01110100
 	call FlashSprite8Times
 .waitLoop2
 	ld a, [wChannelSoundIDs]
@@ -65,16 +69,18 @@ AnimateHealingMachine:
 PokeCenterFlashingMonitorAndHealBall:
 	INCBIN "gfx/overworld/heal_machine.2bpp"
 
+; Pokeball sprites for the pokecenter
+; HAXed to use palette 4
 PokeCenterOAMData:
 	; heal machine monitor
-	dbsprite  6,  4,  4,  4, $7c, OAM_OBP1
+	dbsprite  6,  4,  4,  4, $7c, OAM_OBP1 | 4
 	; poke balls 1-6
-	dbsprite  6,  5,  0,  3, $7d, OAM_OBP1
-	dbsprite  7,  5,  0,  3, $7d, OAM_OBP1 | OAM_HFLIP
-	dbsprite  6,  6,  0,  0, $7d, OAM_OBP1
-	dbsprite  7,  6,  0,  0, $7d, OAM_OBP1 | OAM_HFLIP
-	dbsprite  6,  6,  0,  5, $7d, OAM_OBP1
-	dbsprite  7,  6,  0,  5, $7d, OAM_OBP1 | OAM_HFLIP
+	dbsprite  6,  5,  0,  3, $7d, OAM_OBP1 | 4
+	dbsprite  7,  5,  0,  3, $7d, OAM_OBP1 | OAM_HFLIP | 4
+	dbsprite  6,  6,  0,  0, $7d, OAM_OBP1 | 4
+	dbsprite  7,  6,  0,  0, $7d, OAM_OBP1 | OAM_HFLIP | 4
+	dbsprite  6,  6,  0,  5, $7d, OAM_OBP1 | 4
+	dbsprite  7,  6,  0,  5, $7d, OAM_OBP1 | OAM_HFLIP | 4
 
 ; d = value to xor with palette
 FlashSprite8Times:

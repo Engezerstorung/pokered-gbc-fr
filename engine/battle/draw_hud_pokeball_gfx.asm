@@ -10,14 +10,18 @@ DrawEnemyPokeballs:
 	call LoadPartyPokeballGfx
 	jp SetupEnemyPartyPokeballs
 
-LoadPartyPokeballGfx:
+LoadPartyPokeballGfx_orig: ; Name changed so color hack can hijack this
 	ld de, PokeballTileGraphics
 	ld hl, vSprites tile $31
 	lb bc, BANK(PokeballTileGraphics), (PokeballTileGraphicsEnd - PokeballTileGraphics) / $10
 	jp CopyVideoData
 
 SetupOwnPartyPokeballs:
+IF GEN_2_GRAPHICS
+	call PlayerHUDHAX
+ELSE
 	call PlacePlayerHUDTiles
+ENDC
 	ld hl, wPartyMon1
 	ld de, wPartyCount
 	call SetupPokeballs
@@ -118,6 +122,7 @@ WritePokeballOAMData:
 
 PlacePlayerHUDTiles:
 	ld hl, PlayerBattleHUDGraphicsTiles
+PlayerHUDUpdateDone:
 	ld de, wHUDGraphicsTiles
 	ld bc, $3
 	call CopyData
@@ -137,7 +142,11 @@ PlaceEnemyHUDTiles:
 	ld bc, $3
 	call CopyData
 	hlcoord 1, 2
+IF GEN_2_GRAPHICS
+	jp EnemyHUDHAX
+ELSE
 	ld de, $1
+ENDC
 	jr PlaceHUDTiles
 
 EnemyBattleHUDGraphicsTiles:
@@ -148,6 +157,7 @@ EnemyBattleHUDGraphicsTiles:
 
 PlaceHUDTiles:
 	ld [hl], $73
+EnemyHUDUpdateDone:
 	ld bc, SCREEN_WIDTH
 	add hl, bc
 	ld a, [wHUDGraphicsTiles + 1] ; leftmost tile

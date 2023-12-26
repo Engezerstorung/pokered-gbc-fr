@@ -13,7 +13,8 @@ CableClub_DoBattleOrTrade:
 	ld b, 2
 	ld c, 12
 	call CableClub_TextBoxBorder
-	hlcoord 4, 10
+	call CableClub_DoBattleOrTrade_ColorHook
+	;hlcoord 4, 10
 	ld de, PleaseWaitString
 	call PlaceString
 	ld hl, wPlayerNumHits

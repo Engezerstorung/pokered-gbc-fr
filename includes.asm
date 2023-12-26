@@ -1,4 +1,4 @@
-INCLUDE "charmap.asm"
+GEN_2_GRAPHICS EQU 1
 
 INCLUDE "macros/asserts.asm"
 INCLUDE "macros/const.asm"
@@ -15,6 +15,9 @@ INCLUDE "macros/scripts/maps.asm"
 INCLUDE "macros/scripts/events.asm"
 INCLUDE "macros/scripts/text.asm"
 
+INCLUDE "macros/color.asm"
+
+INCLUDE "constants/charmap.asm"
 INCLUDE "constants/hardware_constants.asm"
 INCLUDE "constants/oam_constants.asm"
 INCLUDE "constants/misc_constants.asm"
@@ -24,6 +27,7 @@ INCLUDE "constants/serial_constants.asm"
 INCLUDE "constants/script_constants.asm"
 INCLUDE "constants/type_constants.asm"
 INCLUDE "constants/battle_constants.asm"
+INCLUDE "constants/battle_anim_constants.asm"
 INCLUDE "constants/move_constants.asm"
 INCLUDE "constants/move_animation_constants.asm"
 INCLUDE "constants/move_effect_constants.asm"
@@ -49,3 +53,6 @@ INCLUDE "constants/tileset_constants.asm"
 INCLUDE "constants/event_constants.asm"
 INCLUDE "constants/text_constants.asm"
 INCLUDE "constants/menu_constants.asm"
+
+INCLUDE "color/wram.asm"
+INCLUDE "color/data/map_palette_constants.asm"

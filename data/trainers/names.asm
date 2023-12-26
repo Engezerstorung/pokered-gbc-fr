@@ -1,4 +1,5 @@
 TrainerNames::
+	list_start TrainerNames
 	db "GAMIN@"
 	db "SCOUT@"
 	db "FILLETTE@"

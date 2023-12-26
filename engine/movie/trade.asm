@@ -70,7 +70,7 @@ ENDM
 ; Trade_SwapNames to swap the player and enemy names for some functions.
 
 InternalClockTradeFuncSequence:
-	tradefunc LoadTradingGFXAndMonNames
+	tradefunc LoadTradingGFXAndMonNames_ColorHook
 	tradefunc Trade_ShowPlayerMon
 	tradefunc Trade_DrawOpenEndOfLinkCable
 	tradefunc Trade_AnimateBallEnteringLinkCable
@@ -89,7 +89,7 @@ InternalClockTradeFuncSequence:
 	db -1 ; end
 
 ExternalClockTradeFuncSequence:
-	tradefunc LoadTradingGFXAndMonNames
+	tradefunc LoadTradingGFXAndMonNames_ColorHook
 	tradefunc Trade_ShowClearedWindow
 	tradefunc PrintTradeWillTradeText
 	tradefunc PrintTradeFarewellText
@@ -113,7 +113,7 @@ ExternalClockTradeFuncSequence:
 	db -1 ; end
 
 TradeFuncPointerTable:
-	addtradefunc LoadTradingGFXAndMonNames
+	addtradefunc LoadTradingGFXAndMonNames_ColorHook
 	addtradefunc Trade_ShowPlayerMon
 	addtradefunc Trade_DrawOpenEndOfLinkCable
 	addtradefunc Trade_AnimateBallEnteringLinkCable
@@ -179,7 +179,7 @@ LoadTradingGFXAndMonNames:
 	and a
 	ld a, $e4 ; non-SGB OBP0
 	jr z, .next
-	ld a, $f0 ; SGB OBP0
+	ld a, $e4 ; SGB OBP0
 .next
 	ldh [rOBP0], a
 	call EnableLCD
@@ -223,6 +223,9 @@ Trade_Cleanup:
 	ret
 
 Trade_ShowPlayerMon:
+	ld b, SET_PAL_POKEMON_WHOLE_SCREEN
+	ld c, 2
+	call Trade_LoadCablePalettes ; Ignores values of b, c
 	ld a, %10101011
 	ldh [rLCDC], a
 	ld a, $50
@@ -265,11 +268,14 @@ Trade_ShowPlayerMon:
 	ret
 
 Trade_DrawOpenEndOfLinkCable:
+	ld a, %11100100
+	ldh [rOBP0], a
 	call Trade_ClearTileMap
 	ld b, HIGH(vBGMap0)
 	call CopyScreenTileBufferToVRAM
-	ld b, SET_PAL_GENERIC
-	call RunPaletteCommand
+	ld b, SET_PAL_POKEMON_WHOLE_SCREEN
+	ld c, 2
+	call Trade_LoadCablePalettes ; Ignores values of b, c
 
 ; This function call is pointless. It just copies blank tiles to VRAM that was
 ; already filled with blank tiles.
@@ -377,7 +383,7 @@ Trade_ShowEnemyMon:
 
 Trade_AnimLeftToRight:
 ; Animates the mon moving from the left GB to the right one.
-	call Trade_InitGameboyTransferGfx
+	call Trade_InitGameboyTransferGfx_ColorHook
 	ld a, $1
 	ld [wTradedMonMovingRight], a
 	ld a, %11100100
@@ -411,7 +417,7 @@ Trade_AnimLeftToRight:
 
 Trade_AnimRightToLeft:
 ; Animates the mon moving from the right GB to the left one.
-	call Trade_InitGameboyTransferGfx
+	call Trade_InitGameboyTransferGfx_ColorHook
 	xor a
 	ld [wTradedMonMovingRight], a
 	ld a, $64
