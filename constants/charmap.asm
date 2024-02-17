@@ -155,21 +155,21 @@
 	charmap "è",         $bb
 	charmap "é",         $bc
 	charmap "ù",         $bd
-	charmap "ß",         $be
-	charmap "ç",         $bf
-	charmap "Ä",         $c0
-	charmap "Ö",         $c1
-	charmap "Ü",         $c2
-	charmap "ä",         $c3
-	charmap "ö",         $c4
-	charmap "ü",         $c5
-	charmap "ë",         $c6
-	charmap "ï",         $c7
-	charmap "â",         $c8
-	charmap "ô",         $c9
-	charmap "û",         $ca
-	charmap "ê",         $cb
-	charmap "î",         $cc
+	charmap "Ä",         $be
+	charmap "Ö",         $cf
+
+	charmap "Ü",         $c9
+	charmap "ä",         $ca
+	charmap "ö",         $cb
+	charmap "ü",         $cc
+	charmap "ë",         $cd
+	charmap "ï",         $ce
+	charmap "â",         $cf
+	charmap "ô",         $d0
+	charmap "û",         $d1
+	charmap "ê",         $d2
+	charmap "î",         $d3
+
 	charmap "c'",        $d4
 	charmap "d'",        $d5
 	charmap "j'",        $d6
@@ -194,8 +194,8 @@
 	charmap ".",         $e8
 
 	charmap "ァ",         $e9 ; katakana small a, unused
-	charmap "ゥ",         $ea ; katakana small u, unused
-	charmap "ェ",         $eb ; katakana small e, unused
+	charmap "ß",          $ea
+	charmap "ç",          $eb
 
 	charmap "▷",         $ec
 	charmap "▶",         $ed
