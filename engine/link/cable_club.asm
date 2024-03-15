@@ -634,7 +634,7 @@ TradeCenter_DisplayStats:
 	jp TradeCenter_DrawCancelBox
 
 TradeCenter_DrawPartyLists:
-	hlcoord 0, 0
+	call TradeCenter_DrawPartyLists_ColorHook
 	ld b, 6
 	ld c, 18
 	call CableClub_TextBoxBorder
