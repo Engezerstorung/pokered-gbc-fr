@@ -167,12 +167,12 @@ ENDC
 IF GEN_2_GRAPHICS
 	call KeepEXPBarFull
 ELSE
-	ld a, [wCurEnemyLVL]
+	ld a, [wCurEnemyLevel]
 ENDC
 	push af
 	push hl
 	ld a, d
-	ld [wCurEnemyLVL], a
+	ld [wCurEnemyLevel], a
 	ld [hl], a
 	ld bc, wPartyMon1Species - wPartyMon1Level
 	add hl, bc
@@ -273,7 +273,7 @@ ENDC
 	predef FlagActionPredef
 	pop hl
 	pop af
-	ld [wCurEnemyLVL], a
+	ld [wCurEnemyLevel], a
 
 .nextMon
 	ld a, [wPartyCount]
