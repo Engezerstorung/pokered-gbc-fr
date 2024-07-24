@@ -2895,7 +2895,7 @@ PrintMenuItem:
 	add hl, bc
 	ld a, [hl]
 	and $3f
-	ld [wcd6d], a
+	ld [wBattleMenuCurrentPP], a
 ; print TYPE/<type> and <curPP>/<maxPP>
 	hlcoord 1, 9
 	ld de, TypeText
@@ -2905,7 +2905,7 @@ PrintMenuItem:
 	hlcoord 5, 9
 	ld [hl], "/"
 	hlcoord 5, 11
-	ld de, wcd6d
+	ld de, wBattleMenuCurrentPP
 	lb bc, 1, 2
 	call PrintNumber
 	hlcoord 8, 11
@@ -5648,7 +5648,7 @@ EnemyCanExecuteChargingMove:
 	ld a, MOVE_NAME
 	ld [wNameListType], a
 	call GetName
-	ld de, wcd6d
+	ld de, wNameBuffer
 	call CopyToStringBuffer
 EnemyCanExecuteMove:
 	xor a
@@ -6128,7 +6128,7 @@ GetCurrentMove:
 	ld a, MOVE_NAME
 	ld [wNameListType], a
 	call GetName
-	ld de, wcd6d
+	ld de, wNameBuffer
 	jp CopyToStringBuffer
 
 LoadEnemyMonData:
@@ -6264,7 +6264,7 @@ LoadEnemyMonData:
 	ld a, [wEnemyMonSpecies2]
 	ld [wd11e], a
 	call GetMonName
-	ld hl, wcd6d
+	ld hl, wNameBuffer
 	ld de, wEnemyMonNick
 	ld bc, NAME_LENGTH
 	call CopyData
