@@ -156,7 +156,7 @@
 	charmap "é",         $bc
 	charmap "ù",         $bd
 	charmap "Ä",         $be
-	charmap "Ö",         $cf
+	charmap "Ö",         $bf
 
 	charmap "Ü",         $c9
 	charmap "ä",         $ca
