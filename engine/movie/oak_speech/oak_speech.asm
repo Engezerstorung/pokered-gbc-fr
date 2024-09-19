@@ -83,7 +83,7 @@ ENDC
 	;call ClearScreen
 	call GetNidorinoPalID ; HAX
 	ld a, NIDORINO
-	ld [wd0b5], a
+	ld [wCurSpecies], a
 	ld [wCurPartySpecies], a
 	call GetMonHeader
 	hlcoord 6, 4
