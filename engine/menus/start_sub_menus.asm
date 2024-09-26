@@ -641,7 +641,7 @@ TrainerInfo_DrawVerticalLine:
 
 StartMenu_SaveReset::
 	ld a, [wStatusFlags4]
-	bit BIT_LINK_CONNECTED, a ; is the player using the link feature?
+	bit BIT_LINK_CONNECTED, a
 	jp nz, SoftReset
 	predef SaveSAV ; save the game
 	call LoadScreenTilesFromBuffer2 ; restore saved screen
