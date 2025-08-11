@@ -292,8 +292,8 @@ CheckSGB:
 	ei
 	call Wait7000
 	ldh a, [rJOYP]
-	and $3
-	cp $3
+	and JOYP_SGB_MLT_REQ
+	cp JOYP_SGB_MLT_REQ
 	jr nz, .isSGB
 	ld a, JOYP_SGB_ZERO
 	ldh [rJOYP], a
@@ -323,8 +323,8 @@ CheckSGB:
 	call Wait7000
 	call Wait7000
 	ldh a, [rJOYP]
-	and $3
-	cp $3
+	and JOYP_SGB_MLT_REQ
+	cp JOYP_SGB_MLT_REQ
 	jr nz, .isSGB
 	call SendMltReq1Packet
 	and a
