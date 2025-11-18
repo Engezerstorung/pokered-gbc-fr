@@ -978,5 +978,5 @@ CableClub_DrawHorizontalLine:
 LoadTrainerInfoTextBoxTiles:
 	ld de, TrainerInfoTextBoxTileGraphics
 	ld hl, vChars2 tile $76
-	lb bc, BANK(TrainerInfoTextBoxTileGraphics), (TrainerInfoTextBoxTileGraphicsEnd - TrainerInfoTextBoxTileGraphics) / $10
+	lb bc, BANK(TrainerInfoTextBoxTileGraphics), (TrainerInfoTextBoxTileGraphicsEnd - TrainerInfoTextBoxTileGraphics) / TILE_SIZE
 	jp CopyVideoData

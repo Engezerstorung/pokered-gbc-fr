@@ -104,7 +104,7 @@ DisplayTitleScreen:
 ; place tiles for title screen copyright
 	hlcoord 2, 17
 	ld de, .tileScreenCopyrightTiles
-	ld b, $10
+	ld b, .tileScreenCopyrightTilesEnd - .tileScreenCopyrightTiles
 .tileScreenCopyrightTilesLoop
 	ld a, [de]
 	ld [hli], a
@@ -116,6 +116,7 @@ DisplayTitleScreen:
 
 .tileScreenCopyrightTiles
 	db $41,$42,$43,$44,$42,$43,$4f,$46,$47,$48,$49,$4A,$4B,$4C,$4D,$4E ; ©1995-1999 GAME FREAK inc.
+.tileScreenCopyrightTilesEnd
 
 .next
 	call SaveScreenTilesToBuffer2

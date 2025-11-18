@@ -20,9 +20,14 @@ GetRowColAddressBgMap::
 ; INPUT: h - high byte of background tile map address in VRAM
 ClearBgMap::
 	ld a, ' '
-	jr .next
+	jr FillBgMapCommon
+
+; fills a VRAM background map with tile index in register l
+; INPUT: h - high byte of background tile map address in VRAM
+FillBgMap:: ; unreferenced
 	ld a, l
-.next
+
+FillBgMapCommon:
 	ld de, TILEMAP_AREA
 	ld l, e
 .loop
@@ -287,7 +292,7 @@ UpdateMovingBgTiles::
 ; water
 
 	ld hl, vTileset tile $14
-	ld c, $10
+	ld c, TILE_SIZE
 
 	ld a, [wMovingBGTilesCounter2]
 	inc a
@@ -332,7 +337,7 @@ UpdateMovingBgTiles::
 	ld hl, FlowerTile3
 .copy
 	ld de, vTileset tile $03
-	ld c, $10
+	ld c, TILE_SIZE
 .loop
 	ld a, [hli]
 	ld [de], a
