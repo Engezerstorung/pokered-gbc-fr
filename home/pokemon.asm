@@ -320,9 +320,7 @@ PrintStatusCondition::
 	pop de
 	jr nz, PrintStatusConditionNotFainted
 ; if the pokemon's HP is 0, print "KO"
-	ld a,'K'
-	ld [hli],a
-	ld [hl],'O'
+	ld_hli_a_string "KO"
 	and a
 	ret
 
