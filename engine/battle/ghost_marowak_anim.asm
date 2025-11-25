@@ -52,7 +52,7 @@ MarowakAnim:
 CopyMonPicFromBGToSpriteVRAM_orig: ; Name changed so color hack can hijack this
 	ld de, vFrontPic
 	ld hl, vSprites
-	ld bc, 7 * 7
+	ld bc, PIC_SIZE
 	call CopyVideoData
 	ld a, $10
 	ld [wBaseCoordY], a
