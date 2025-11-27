@@ -372,7 +372,7 @@ ENDC
 	pop de
 	pop hl
 	push hl
-	ld bc, wPartyMon1PP - wPartyMon1Moves - 1
+	ld bc, MON_PP - MON_MOVES - 1
 	add hl, bc
 	ld a, [hl]
 	and PP_MASK
