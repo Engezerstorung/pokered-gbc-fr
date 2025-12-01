@@ -61,8 +61,6 @@ DrawHP_:
 	pop de
 	ret
 
-
-; Predef 0x37
 StatusScreen:
 	call LoadMonData
 	ld a, [wMonDataLocation]
@@ -75,7 +73,7 @@ StatusScreen:
 	ld hl, wLoadedMonHPExp - 1
 	ld de, wLoadedMonStats
 	ld b, $1
-	call CalcStats ; Recalculate stats
+	call CalcStats
 .DontRecalculate
 	ld hl, wStatusFlags2
 	set BIT_NO_AUDIO_FADE_OUT, [hl]
@@ -122,8 +120,8 @@ ENDC
 	lb bc, 8, 6
 	call DrawLineBox ; Draws the box around types, ID No. and OT
 	hlcoord 10, 9
-	ld de, Type1Text
-	call PlaceString ; "TYPE1/"
+	ld de, TypesIDNoOTText
+	call PlaceString
 	hlcoord 11, 3
 	predef DrawHP
 	ld hl, wStatusScreenHPBarColor
@@ -142,7 +140,7 @@ ENDC
 	ld de, StatusText
 	call PlaceString ; "STATUS/"
 	hlcoord 14, 2
-	call PrintLevel ; Pokémon level
+	call PrintLevel
 	ld a, [wMonHIndex]
 	ld [wPokedexNum], a
 	ld [wCurSpecies], a
@@ -169,7 +167,7 @@ ENDC
 	ld de, wLoadedMonOTID
 	lb bc, LEADING_ZEROES | 2, 5
 	call PrintNumber ; ID Number
-	ld d, $0
+	ld d, STATUS_SCREEN_STATS_BOX
 	call PrintStatsBox
 	call Delay3
 	call GBPalNormal
@@ -209,20 +207,11 @@ NamePointers2:
 	dw wBoxMonNicks
 	dw wDayCareMonName
 
-Type1Text:
+TypesIDNoOTText:
 	db   "TYPE1/"
-	next ""
-	; fallthrough
-Type2Text:
-	db   "TYPE2/"
-	next ""
-	; fallthrough
-IDNoText:
-	db   "№<ID>/"
-	next ""
-	; fallthrough
-OTText:
-	db   "DO/"
+	next "TYPE2/"
+	next "№<ID>/"
+	next "DO/"
 	next "@"
 
 StatusText:
@@ -253,40 +242,42 @@ PTile: INCBIN "gfx/font/P.1bpp"
 
 PrintStatsBox:
 	ld a, d
-	and a ; a is 0 from the status screen
-	jr nz, .DifferentBox
+	ASSERT STATUS_SCREEN_STATS_BOX == 0
+	and a
+	jr nz, .LevelUpStatsBox ; battle or Rare Candy
 	hlcoord 0, 8
 	ld b, 8
 	ld c, 8
-	call TextBoxBorder ; Draws the box
-	hlcoord 1, 9 ; Start printing stats from here
-	ld bc, $19 ; Number offset
+	call TextBoxBorder
+	hlcoord 1, 9
+	ld bc, SCREEN_WIDTH + 5 ; one row down and 5 columns right
 	jr .PrintStats
-.DifferentBox
+.LevelUpStatsBox
 	hlcoord 9, 2
 	ld b, 8
 	ld c, 9
 	call TextBoxBorder
 	hlcoord 11, 3
-	ld bc, $18
+	ld bc, SCREEN_WIDTH + 4 ; one row down and 4 columns right
 .PrintStats
 	push bc
 	push hl
-	ld de, StatsText
+	ld de, .StatsText
 	call PlaceString
 	pop hl
 	pop bc
 	add hl, bc
 	ld de, wLoadedMonAttack
 	lb bc, 2, 3
-	call PrintStat
+	call .PrintStat
 	ld de, wLoadedMonDefense
-	call PrintStat
+	call .PrintStat
 	ld de, wLoadedMonSpeed
-	call PrintStat
+	call .PrintStat
 	ld de, wLoadedMonSpecial
 	jp PrintNumber
-PrintStat:
+
+.PrintStat:
 	push hl
 	call PrintNumber
 	pop hl
@@ -334,10 +325,10 @@ ENDC
 	call PlaceString ; Print moves
 	ld a, [wNumMovesMinusOne]
 	inc a
-	ld c, a
-	ld a, $4
+	ld c, a ; number of known moves
+	ld a, NUM_MOVES
 	sub c
-	ld b, a ; Number of moves ?
+	ld b, a ; number of blank moves
 	hlcoord 11, 10
 	ld de, SCREEN_WIDTH * 2
 	ld a, 'P'
@@ -397,7 +388,7 @@ ENDC
 	pop bc
 	inc b
 	ld a, b
-	cp $4
+	cp NUM_MOVES
 	jr nz, .PrintPP
 .PPDone
 	hlcoord 9, 3
@@ -426,8 +417,11 @@ ENDC
 	hlcoord 7, 6
 	lb bc, 3, 7
 	call PrintNumber ; exp needed to level up
+
+	; unneeded, this clears the diacritic characters in JPN versions
 	hlcoord 9, 0
 	call StatusScreen_ClearName
+
 	hlcoord 9, 1
 	call StatusScreen_ClearName
 	ld a, [wMonHIndex]
@@ -479,7 +473,7 @@ StatusScreenExpText:
 	next "PROCH.NIV.@"
 
 StatusScreen_ClearName:
-	ld bc, 10
+	ld bc, NAME_LENGTH - 1
 	ld a, ' '
 	jp FillMemory
 
