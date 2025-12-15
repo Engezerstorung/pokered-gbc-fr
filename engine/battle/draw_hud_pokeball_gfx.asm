@@ -22,7 +22,7 @@ IF GEN_2_GRAPHICS
 ELSE
 	call PlacePlayerHUDTiles
 ENDC
-	ld hl, wPartyMon1
+	ld hl, wPartyMons
 	ld de, wPartyCount
 	call SetupPokeballs
 	ld a, $60
