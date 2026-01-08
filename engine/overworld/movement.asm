@@ -491,7 +491,7 @@ Func_515D:
 ; tests if sprite is off screen or otherwise unable to do anything
 CheckSpriteAvailability:
 	predef IsObjectHidden
-	ldh a, [hIsHiddenMissableObject]
+	ldh a, [hIsToggleableObjectOff]
 	and a
 	jp nz, .spriteInvisible
 	ld h, HIGH(wSpriteStateData2)
