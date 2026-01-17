@@ -1136,21 +1136,21 @@ _MoveIsDisabledText::
 	cont "a disparu!"
 	prompt
 
-_MonName1Text::
+_ActorNameText::
 	text "<USER>@"
 	text_end
 
-_Used1Text::
+_UsedMove1Text::
 	text_start
 	line "lance @"
 	text_end
 
-_Used2Text::
+_UsedMove2Text::
 	text_start
 	line "lance @"
 	text_end
 
-_InsteadText::
+_UsedInsteadText::
 	text "à la place:"
 	cont "@"
 	text_end
@@ -1159,23 +1159,23 @@ _MoveNameText::
 	text_ram wStringBuffer
 	text "@"
 
-_ExclamationPoint1Text::
+_EndUsedMove1Text::
 	text_start
 	done
 
-_ExclamationPoint2Text::
+_EndUsedMove2Text::
 	text_start
 	done
 
-_ExclamationPoint3Text::
+_EndUsedMove3Text::
 	text_start
 	done
 
-_ExclamationPoint4Text::
+_EndUsedMove4Text::
 	text_start
 	done
 
-_ExclamationPoint5Text::
+_EndUsedMove5Text::
 	text_start
 	done
 
