@@ -6,7 +6,7 @@
 ; weren't going to be included in the final version of the game were removed,
 ; creating a miniscule 300 bytes of free space. So we thought that we could
 ; slot Mew in there. What we did would be unthinkable nowadays!"
-; http://iwataasks.nintendo.com/interviews/#/ds/pokemon/0/0
+; https://iwataasks.nintendo.com/interviews/ds/pokemon/0/0/
 
 ; Mew sprites removed from here
 SECTION "Mew Base Stats", ROMX
