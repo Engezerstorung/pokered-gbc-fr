@@ -72,13 +72,13 @@ RefreshWindow::
 	dec a
 	jr z, .transferMiddleThird
 .transferBottomThird
-	hlcoord 0, 12
+	hlcoord 0, 2 * SCREEN_HEIGHT / 3
 	ld sp, hl
 	ldh a, [hAutoBGTransferDest + 1]
 	ld h, a
 	ldh a, [hAutoBGTransferDest]
 	ld l, a
-	ld de, (12 * 32)
+	ld de, 12 * TILEMAP_WIDTH
 	add hl, de
 	xor a ; TRANSFERTOP
 	jr .doTransfer
@@ -92,20 +92,20 @@ RefreshWindow::
 	ld a, TRANSFERMIDDLE
 	jr .doTransfer
 .transferMiddleThird
-	hlcoord 0, 6
+	hlcoord 0, SCREEN_HEIGHT / 3
 	ld sp, hl
 	ldh a, [hAutoBGTransferDest + 1]
 	ld h, a
 	ldh a, [hAutoBGTransferDest]
 	ld l, a
-	ld de, (6 * 32)
+	ld de, 6 * TILEMAP_WIDTH
 	add hl, de
 	ld a, TRANSFERBOTTOM
 
 ; sp now points to map data in wram, hl points to vram destination.
 .doTransfer
 	ldh [hAutoBGTransferPortion], a ; store next portion
-	ld b, 6
+	ld b, SCREEN_HEIGHT / 3
 
 .drawRow:
 ; unrolled loop and using pop for speed
@@ -199,7 +199,7 @@ ENDR
 ; hl = destination
 ; sp = source (need to restore sp after this)
 WindowTransferBgRowsAndColors::
-	; Store # of rows to ocpy
+	; Store # of rows to copy
 	ld a, $02
 	ldh [rWBK], a
 	ld a, b
@@ -286,7 +286,7 @@ DrawMapRow::
 	push de
 	call .drawHalf ; draw upper half
 	pop de
-	ld a, TILEMAP_WIDTH ; width of VRAM background map
+	ld a, TILEMAP_WIDTH
 	add e
 	ld e, a
 	call .drawHalf ; draw lower half
@@ -303,7 +303,7 @@ DrawMapRow::
 	push de
 	call .drawHalfPalette ; draw upper half
 	pop de
-	ld a, TILEMAP_WIDTH ; width of VRAM background map
+	ld a, TILEMAP_WIDTH
 	add e
 	ld e, a
 	call .drawHalfPalette ; draw lower half
@@ -324,10 +324,10 @@ DrawMapRow::
 	ld a, e
 	inc a
 ; the following 6 lines wrap us from the right edge to the left edge if necessary
-	and $1f
+	and %11111
 	ld b, a
 	ld a, e
-	and $e0
+	and %11100000
 	or b
 	ld e, a
 	dec c
@@ -349,10 +349,10 @@ REPT 10
 	ld a, e
 	inc a
 ; the following 6 lines wrap us from the right edge to the left edge if necessary
-	and $1f
+	and %11111
 	ld c, a
 	ld a, e
-	and $e0
+	and %11100000
 	or c
 	ld e, a
 ENDR
@@ -388,7 +388,7 @@ DrawMapColumn::
 .noCarry
 ; the following 4 lines wrap us from bottom to top if necessary
 	ld a, d
-	and $3
+	and HIGH(TILEMAP_AREA - 1)
 	or $98
 	ld d, a
 	dec c
@@ -423,8 +423,8 @@ REPT SCREEN_HEIGHT
 .noCarry\@
 ; the following 4 lines wrap us from bottom to top if necessary
 	ld a, d
-	and $03
-	or $98
+	and HIGH(TILEMAP_AREA - 1)
+	or HIGH(vBGMap0)
 	ld d, a
 ENDR
 

@@ -256,6 +256,7 @@ IF GEN_2_GRAPHICS
 	call AnimateEXPBarAgain
 ELSE
 	call LoadMonData
+ENDC
 	ld d, LEVEL_UP_STATS_BOX
 	callfar PrintStatsBox
 	call WaitForTextScrollButtonPress
