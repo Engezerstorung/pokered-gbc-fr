@@ -554,7 +554,7 @@ DrawTrainerInfo:
 	ld de, wPlayerMoney
 	ld c, 3 | LEADING_ZEROES | LEFT_ALIGN
 	call PrintBCDNumber
-	ld [hl], "¥"
+	ld [hl], '¥'
 	hlcoord 9, 6
 	ld de, wPlayTimeHours
 	lb bc, LEFT_ALIGN | 1, 3

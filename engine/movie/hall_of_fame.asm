@@ -239,7 +239,7 @@ HoFDisplayPlayerStats:
 	ld de, wPlayTimeHours
 	lb bc, 1, 3
 	call PrintNumber
-	ld [hl], "<COLON>"
+	ld [hl], '<COLON>'
 	inc hl
 	ld de, wPlayTimeMinutes
 	lb bc, LEADING_ZEROES | 1, 2
@@ -251,7 +251,7 @@ HoFDisplayPlayerStats:
 	ld de, wPlayerMoney
 	ld c, 3 | LEADING_ZEROES
 	call PrintBCDNumber
-	ld [hl], "¥"
+	ld [hl], '¥'
 	ld hl, DexSeenOwnedText
 	call HoFPrintTextAndDelay
 	ld hl, DexRatingText

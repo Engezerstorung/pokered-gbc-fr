@@ -1076,7 +1076,7 @@ wPartyMenuBlkPacket:: ds $30
 NEXTU
 	ds 29
 ; storage buffer for various strings
-wStringBuffer:: ds NAME_BUFFER_LENGTH
+wStringBuffer:: ds NAME_BUFFER_LENGTH - 1
 
 NEXTU
 	ds 29
