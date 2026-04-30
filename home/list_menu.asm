@@ -212,7 +212,7 @@ DisplayChooseQuantityMenu::
 	ld a, [wListMenuID]
 	cp PRICEDITEMLISTMENU
 	jr nz, .printInitialQuantity
-	ld a,"¥"
+	ld a,'¥'
 	ld [wTileMap + 218],a
 	hlcoord 8, 10
 .printInitialQuantity
@@ -424,7 +424,7 @@ PrintListMenuEntries::
 	add hl, bc
 	ld c, 3 | LEADING_ZEROES
 	call PrintBCDNumber
-	ld [hl], "¥"
+	ld [hl], '¥'
 .skipPrintingItemPrice
 	ld a, [wListMenuID]
 	and a ; PCPOKEMONLISTMENU?
